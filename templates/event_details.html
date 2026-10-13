@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block title %}{{ event.title }} – College Event Management System{% endblock %}
+{% block meta_desc %}{{ event.description[:150] }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="page-header">
+    <div class="breadcrumb">
+      <a href="{{ url_for('index') }}">Home</a>
+      <span class="breadcrumb-sep">/</span>
+      <a href="{{ url_for('events') }}">Events</a>
+      <span class="breadcrumb-sep">/</span>
+      <span>{{ event.title }}</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <h1>{{ event.title }}</h1>
+      <span class="badge badge-{{ event.status | lower }}">{{ event.status }}</span>
+    </div>
+  </div>
+
+  {% set pct = ((registered / event.max_participants) * 100) | int if event.max_participants > 0 else 100 %}
+  {% set seats_left = event.max_participants - registered %}
+  {% set can_register = event.status in ('Upcoming', 'Ongoing') and seats_left > 0 %}
+
+  <div class="detail-grid">
+    <!-- LEFT: Description + register CTA -->
+    <div>
+      <div class="card" style="margin-bottom:24px;">
+        <div class="card-header">
+          <h3 style="margin-bottom:0;">About This Event</h3>
+        </div>
+        <div class="card-body">
+          <p style="color:var(--text-secondary);line-height:1.8;">{{ event.description }}</p>
+        </div>
+      </div>
+
+      <!-- Capacity -->
+      <div class="card" style="margin-bottom:24px;padding:24px;">
+        <h4 style="margin-bottom:16px;">🪑 Seat Availability</h4>
+        <div style="display:flex;justify-content:space-between;font-size:.9rem;color:var(--text-secondary);margin-bottom:10px;">
+          <span>{{ registered }} registered</span>
+          <span>{{ seats_left }} seats remaining out of {{ event.max_participants }}</span>
+        </div>
+        <div class="capacity-bar-track" style="height:12px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;">
+          <div class="capacity-bar-fill {% if pct > 85 %}danger{% endif %}"
+               data-width="{{ pct }}" style="width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--primary));transition:width .8s ease;"></div>
+        </div>
+        <p style="font-size:.8rem;color:var(--text-muted);margin-top:8px;">{{ pct }}% capacity filled</p>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="btn-group">
+        {% if can_register %}
+          <a href="{{ url_for('register', event_id=event.id) }}" class="btn btn-primary btn-lg">
+            ✏️ Register Now
+          </a>
+        {% elif event.status in ('Completed', 'Cancelled') %}
+          <button class="btn btn-secondary btn-lg" disabled>
+            🚫 Registration Closed
+          </button>
+        {% elif seats_left <= 0 %}
+          <button class="btn btn-secondary btn-lg" disabled>
+            🔒 Event Full
+          </button>
+        {% endif %}
+        <a href="{{ url_for('events') }}" class="btn btn-secondary btn-lg">← Back to Events</a>
+      </div>
+    </div>
+
+    <!-- RIGHT: Meta details card -->
+    <div>
+      <div class="detail-meta-card">
+        <h4 style="margin-bottom:20px;color:var(--text-muted);font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;">Event Information</h4>
+
+        <div class="detail-meta-item">
+          <span class="detail-meta-icon">🆔</span>
+          <div>
+            <div class="detail-meta-label">Event ID</div>
+            <div class="detail-meta-value">EVT-{{ '%04d' % event.id }}</div>
+          </div>
+        </div>
+        <div class="detail-meta-item">
+          <span class="detail-meta-icon">🏷️</span>
+          <div>
+            <div class="detail-meta-label">Category</div>
+            <div class="detail-meta-value">{{ event.category }}</div>
+          </div>
+        </div>
+        <div class="detail-meta-item">
+          <span class="detail-meta-icon">📅</span>
+          <div>
+            <div class="detail-meta-label">Date</div>
+            <div class="detail-meta-value">{{ event.event_date }}</div>
+          </div>
+        </div>
+        <div class="detail-meta-item">
+          <span class="detail-meta-icon">🕐</span>
+          <div>
+            <div class="detail-meta-label">Time</div>
+            <div class="detail-meta-value">{{ event.event_time }}</div>
+          </div>
+        </div>
+        <div class="detail-meta-item">
+          <span class="detail-meta-icon">📍</span>
+          <div>
+            <div class="detail-meta-label">Venue</div>
+            <div class="detail-meta-value">{{ event.venue }}</div>
+          </div>
+        </div>
+        <div class="detail-meta-item">
+          <span class="detail-meta-icon">👤</span>
+          <div>
+            <div class="detail-meta-label">Organizer</div>
+            <div class="detail-meta-value">{{ event.organizer }}</div>
+          </div>
+        </div>
+        <div class="detail-meta-item">
+          <span class="detail-meta-icon">👥</span>
+          <div>
+            <div class="detail-meta-label">Max Participants</div>
+            <div class="detail-meta-value">{{ event.max_participants }}</div>
+          </div>
+        </div>
+        <div class="detail-meta-item">
+          <span class="detail-meta-icon">✅</span>
+          <div>
+            <div class="detail-meta-label">Available Seats</div>
+            <div class="detail-meta-value" style="color:{% if seats_left == 0 %}#ef4444{% elif seats_left < 10 %}#f59e0b{% else %}var(--accent){% endif %};">
+              {{ seats_left }} seats
+            </div>
+          </div>
+        </div>
+        <div class="detail-meta-item">
+          <span class="detail-meta-icon">🚦</span>
+          <div>
+            <div class="detail-meta-label">Status</div>
+            <div class="detail-meta-value"><span class="badge badge-{{ event.status | lower }}">{{ event.status }}</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

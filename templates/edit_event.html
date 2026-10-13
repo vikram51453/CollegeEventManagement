@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Edit Event – Admin{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+  <aside class="sidebar">
+    <div class="sidebar-label">Navigation</div>
+    <a href="{{ url_for('admin_dashboard') }}"><span class="sidebar-icon">📊</span> Dashboard</a>
+    <a href="{{ url_for('create_event') }}"><span class="sidebar-icon">➕</span> Create Event</a>
+    <a href="{{ url_for('admin_registrations') }}"><span class="sidebar-icon">📋</span> Registrations</a>
+    <div class="sidebar-label" style="margin-top:16px;">Account</div>
+    <a href="{{ url_for('admin_logout') }}"><span class="sidebar-icon">🚪</span> Logout</a>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-page-title">✏️ Edit Event</div>
+    <div class="admin-page-sub">Modify the event details below. Changes are saved immediately.</div>
+
+    <div class="form-card" style="max-width:780px;margin:0;">
+      <form method="POST" action="{{ url_for('edit_event', event_id=event.id) }}">
+
+        <div class="form-group">
+          <label class="form-label" for="title">Event Title *</label>
+          <input type="text" id="title" name="title" class="form-control"
+                 value="{{ event.title }}" required maxlength="200" />
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="category">Category *</label>
+            <select id="category" name="category" class="form-control" required>
+              {% for cat in categories %}
+                <option value="{{ cat }}" {% if cat == event.category %}selected{% endif %}>{{ cat }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="status">Status *</label>
+            <select id="status" name="status" class="form-control" required>
+              {% for s in ['Upcoming','Ongoing','Completed','Cancelled'] %}
+                <option value="{{ s }}" {% if s == event.status %}selected{% endif %}>{{ s }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="description">Description *</label>
+          <textarea id="description" name="description" class="form-control"
+                    required rows="4">{{ event.description }}</textarea>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="event_date">Event Date *</label>
+            <input type="date" id="event_date" name="event_date" class="form-control"
+                   value="{{ event.event_date }}" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="event_time">Event Time *</label>
+            <input type="time" id="event_time" name="event_time" class="form-control"
+                   value="{{ event.event_time }}" required />
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="venue">Venue *</label>
+            <input type="text" id="venue" name="venue" class="form-control"
+                   value="{{ event.venue }}" required maxlength="200" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="organizer">Organizer *</label>
+            <input type="text" id="organizer" name="organizer" class="form-control"
+                   value="{{ event.organizer }}" required maxlength="200" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="max_participants">Max Participants *</label>
+          <input type="number" id="max_participants" name="max_participants"
+                 class="form-control" value="{{ event.max_participants }}" min="1" max="10000" required />
+        </div>
+
+        <div class="btn-group" style="margin-top:8px;">
+          <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+          <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+{% endblock %}

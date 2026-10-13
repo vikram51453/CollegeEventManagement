@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Admin Login – College Event Management System{% endblock %}
+
+{% block content %}
+<div class="login-page">
+  <div>
+    <div class="login-card">
+      <div class="login-icon">🔐</div>
+      <h2 style="margin-bottom:6px;">Administrator Login</h2>
+      <p style="color:var(--text-muted);font-size:.88rem;margin-bottom:28px;">
+        Access the admin panel to manage events and registrations.
+      </p>
+
+      <form method="POST" action="{{ url_for('admin_login') }}">
+        <div class="form-group" style="margin-bottom:20px;">
+          <label class="form-label" for="password">Admin Password</label>
+          <input type="password" id="password" name="password" class="form-control"
+                 placeholder="Enter administrator password" required autofocus
+                 style="text-align:center;letter-spacing:.1em;font-size:1rem;" />
+        </div>
+        <button type="submit" class="btn btn-primary"
+                style="width:100%;justify-content:center;padding:14px;font-size:1rem;">
+          🔐 Login to Admin Panel
+        </button>
+      </form>
+
+      <div class="separator" style="margin:24px 0;"></div>
+
+      <div style="background:rgba(108,99,255,.08);border:1px solid rgba(108,99,255,.2);border-radius:var(--radius-sm);padding:14px;font-size:.8rem;color:var(--text-muted);">
+        ℹ️ Default password is set via the <code style="color:var(--primary-light);">ADMIN_PASSWORD</code>
+        environment variable. Default: <code style="color:var(--accent);">admin123</code>
+      </div>
+
+      <div style="margin-top:20px;">
+        <a href="{{ url_for('index') }}" style="font-size:.85rem;color:var(--text-muted);">← Back to Homepage</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

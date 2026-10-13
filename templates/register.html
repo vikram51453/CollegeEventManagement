@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block title %}Register – {{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="page-header">
+    <div class="breadcrumb">
+      <a href="{{ url_for('index') }}">Home</a>
+      <span class="breadcrumb-sep">/</span>
+      <a href="{{ url_for('events') }}">Events</a>
+      <span class="breadcrumb-sep">/</span>
+      <a href="{{ url_for('event_details', event_id=event.id) }}">{{ event.title }}</a>
+      <span class="breadcrumb-sep">/</span>
+      <span>Register</span>
+    </div>
+    <h1>✏️ Event Registration</h1>
+    <p>Complete the form below to register for <strong>{{ event.title }}</strong>.</p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 380px;gap:32px;align-items:start;" class="reg-layout">
+
+    <!-- FORM -->
+    <div class="form-card" style="max-width:100%;">
+      <h2 style="margin-bottom:6px;font-size:1.4rem;">Student Registration</h2>
+      <p style="color:var(--text-muted);font-size:.88rem;margin-bottom:28px;">
+        All fields are required. You will receive a unique Registration ID on success.
+      </p>
+
+      <form method="POST" action="{{ url_for('submit_registration') }}" id="reg-form" novalidate>
+        <input type="hidden" name="event_id" value="{{ event.id }}" />
+
+        <div class="form-group">
+          <label class="form-label" for="student_name">Full Name</label>
+          <input type="text" id="student_name" name="student_name" class="form-control"
+                 placeholder="e.g. Priya Sharma" required maxlength="120" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Email Address</label>
+          <input type="email" id="email" name="email" class="form-control"
+                 placeholder="e.g. priya@college.edu" required />
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="department">Department</label>
+            <select id="department" name="department" class="form-control" required>
+              <option value="">-- Select Department --</option>
+              {% for dept in departments %}
+                <option value="{{ dept }}">{{ dept }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="year">Year of Study</label>
+            <select id="year" name="year" class="form-control" required>
+              <option value="">-- Select Year --</option>
+              {% for y in years %}
+                <option value="{{ y }}">{{ y }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <!-- Event Summary (read-only) -->
+        <div style="background:rgba(108,99,255,.08);border:1px solid rgba(108,99,255,.22);border-radius:var(--radius-sm);padding:16px;margin-bottom:20px;font-size:.88rem;">
+          <div style="font-weight:700;color:var(--primary-light);margin-bottom:8px;">📋 Registering for:</div>
+          <div style="color:var(--text-secondary);">
+            <strong style="color:var(--text-primary);">{{ event.title }}</strong><br/>
+            📅 {{ event.event_date }} &nbsp;·&nbsp; 🕐 {{ event.event_time }}<br/>
+            📍 {{ event.venue }}
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:14px;" id="submit-btn">
+          🎟️ Submit Registration
+        </button>
+      </form>
+    </div>
+
+    <!-- SIDEBAR INFO -->
+    <div>
+      <div class="detail-meta-card" style="margin-bottom:20px;">
+        <h4 style="margin-bottom:16px;color:var(--text-muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;">Event Details</h4>
+        <div class="detail-meta-item">
+          <span class="detail-meta-icon">📅</span>
+          <div>
+            <div class="detail-meta-label">Date</div>
+            <div class="detail-meta-value">{{ event.event_date }}</div>
+          </div>
+        </div>
+        <div class="detail-meta-item">
+          <span class="detail-meta-icon">🕐</span>
+          <div>
+            <div class="detail-meta-label">Time</div>
+            <div class="detail-meta-value">{{ event.event_time }}</div>
+          </div>
+        </div>
+        <div class="detail-meta-item">
+          <span class="detail-meta-icon">📍</span>
+          <div>
+            <div class="detail-meta-label">Venue</div>
+            <div class="detail-meta-value">{{ event.venue }}</div>
+          </div>
+        </div>
+        <div class="detail-meta-item">
+          <span class="detail-meta-icon">👤</span>
+          <div>
+            <div class="detail-meta-label">Organizer</div>
+            <div class="detail-meta-value">{{ event.organizer }}</div>
+          </div>
+        </div>
+        <div class="detail-meta-item">
+          <span class="detail-meta-icon">🏷️</span>
+          <div>
+            <div class="detail-meta-label">Category</div>
+            <div class="detail-meta-value">{{ event.category }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:20px;border-color:rgba(67,217,173,.2);">
+        <h5 style="color:var(--accent);margin-bottom:10px;">📌 Important Notes</h5>
+        <ul style="list-style:none;font-size:.83rem;color:var(--text-muted);display:flex;flex-direction:column;gap:8px;">
+          <li>✔ One registration per email per event</li>
+          <li>✔ Save your Registration ID after submission</li>
+          <li>✔ Use Track Registration to check your status</li>
+          <li>✔ Contact the organizer for queries</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+@media(max-width:860px){ .reg-layout{ grid-template-columns:1fr !important; } }
+</style>
+
+{% block scripts %}
+<script>
+document.getElementById('reg-form').addEventListener('submit', function(e) {
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting…';
+});
+</script>
+{% endblock %}
+{% endblock %}
