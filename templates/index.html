@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+{% block title %}CEMS — Architectural College Event Platform{% endblock %}
+
+{% block content %}
+
+<!-- ── HERO SECTION ── -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-editorial-wrap">
+      <div>
+        <div class="hero-badge-editorial">
+          <span class="tag-num">01/PROD</span>
+          <span>CAMPUS DIGITAL INFRASTRUCTURE</span>
+        </div>
+        <h1>
+          Events engineered for minds that care <span class="italic-point">as much as we do.</span>
+        </h1>
+        <p class="hero-sub">
+          A high-clarity event orchestration platform. Discover upcoming hackathons, symposiums, and cultural milestones with zero latency and immediate registration verification.
+        </p>
+        <div class="hero-ctas">
+          <a href="{{ url_for('events') }}" class="btn btn-primary btn-lg">
+            Explore Events &nbsp;→
+          </a>
+          <a href="{{ url_for('track') }}" class="btn btn-secondary btn-lg">
+            Track Registration
+          </a>
+        </div>
+      </div>
+
+      <!-- Hero Showcase Card (Neutomni architectural block) -->
+      <div class="hero-showcase observe-fade">
+        <div class="showcase-header">
+          <div class="dots">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+          <span>LIVE CAMPUS TELEMETRY</span>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:18px;">
+          <div style="border-left:2px solid var(--red-accent);padding-left:14px;">
+            <div style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;">Next Immediate Event</div>
+            <div style="font-size:1.15rem;font-weight:700;color:var(--text-main);margin-top:2px;">
+              {% if upcoming_events %}
+                {{ upcoming_events[0].title }}
+              {% else %}
+                Annual Campus Innovation Hackathon
+              {% endif %}
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;background:#0b0b0f;padding:14px;border:1px solid var(--border-subtle);border-radius:var(--radius-xs);">
+            <div>
+              <div style="font-family:var(--font-mono);font-size:0.68rem;color:var(--text-muted);">STATUS</div>
+              <div style="color:var(--lime-accent);font-weight:600;font-size:0.85rem;margin-top:2px;">ACCEPTING ENTRIES</div>
+            </div>
+            <div>
+              <div style="font-family:var(--font-mono);font-size:0.68rem;color:var(--text-muted);">SYSTEM AUDIT</div>
+              <div style="color:var(--text-main);font-weight:600;font-size:0.85rem;margin-top:2px;">100% OPERATIONAL</div>
+            </div>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;padding-top:4px;">
+            <span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);">Direct Enrollment Pipeline</span>
+            <a href="{{ url_for('events') }}" style="font-family:var(--font-mono);font-size:0.75rem;color:var(--red-accent);font-weight:600;">PORTAL &rarr;</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="hero-stats-grid observe-fade">
+      <div class="stat-box">
+        <div class="stat-index">METRIC // 01</div>
+        <div class="stat-number" data-count="{{ total_events }}">{{ total_events }}</div>
+        <div class="stat-label">Catalogued Events</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-index">METRIC // 02</div>
+        <div class="stat-number" data-count="{{ upcoming_events | length }}">{{ upcoming_events | length }}</div>
+        <div class="stat-label">Active Upcoming</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-index">METRIC // 03</div>
+        <div class="stat-number" data-count="{{ total_regs }}">{{ total_regs }}</div>
+        <div class="stat-label">Registered Attendees</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-index">METRIC // 04</div>
+        <div class="stat-number" data-count="8">8</div>
+        <div class="stat-label">Academic Categories</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── MARQUEE STRIP (Neutomni Accent Ticker) ── -->
+<div class="marquee-strip">
+  <div class="marquee-track">
+    <div class="marquee-item"><span class="symbol">◆</span> HACKATHONS & INNOVATION</div>
+    <div class="marquee-item"><span class="symbol">◆</span> TECHNICAL SYMPOSIUMS</div>
+    <div class="marquee-item"><span class="symbol">◆</span> PEER COLLABORATION</div>
+    <div class="marquee-item"><span class="symbol">◆</span> REAL-TIME TICKET VERIFICATION</div>
+    <div class="marquee-item"><span class="symbol">◆</span> DEVOPS AUTOMATION ENGINE</div>
+    <div class="marquee-item"><span class="symbol">◆</span> WORKSHOPS & MASTERCLASSES</div>
+    <!-- Duplicate for infinite loop -->
+    <div class="marquee-item"><span class="symbol">◆</span> HACKATHONS & INNOVATION</div>
+    <div class="marquee-item"><span class="symbol">◆</span> TECHNICAL SYMPOSIUMS</div>
+    <div class="marquee-item"><span class="symbol">◆</span> PEER COLLABORATION</div>
+    <div class="marquee-item"><span class="symbol">◆</span> REAL-TIME TICKET VERIFICATION</div>
+    <div class="marquee-item"><span class="symbol">◆</span> DEVOPS AUTOMATION ENGINE</div>
+    <div class="marquee-item"><span class="symbol">◆</span> WORKSHOPS & MASTERCLASSES</div>
+  </div>
+</div>
+
+<!-- ── UPCOMING EVENTS SECTION ── -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <div class="section-index">DISCOVER // UPCOMING SCHEDULE</div>
+        <h2 class="section-title">Selected Campus Events</h2>
+        <p class="section-sub">Curated opportunities for technical growth, cultural expression, and peer mastery.</p>
+      </div>
+      <a href="{{ url_for('events') }}" class="btn btn-secondary">
+        View Complete Calendar &nbsp;→
+      </a>
+    </div>
+
+    {% if upcoming_events %}
+      <div class="grid-3">
+        {% for ev in upcoming_events %}
+          {% set cat_class = {
+            'Hackathons':      'cat-hackathons',
+            'Workshops':       'cat-workshops',
+            'Technical Events':'cat-technical',
+            'Cultural Events': 'cat-cultural',
+            'Sports Events':   'cat-sports',
+            'Seminars':        'cat-seminars',
+            'Symposiums':      'cat-symposiums'
+          }.get(ev.category, 'cat-other') %}
+          <div class="card event-card observe-fade">
+            <div class="event-card-top">
+              <div class="event-card-id">
+                <span>EVENT // #{{ '%04d' % ev.id }}</span>
+                <span class="event-category-tag {{ cat_class }}">{{ ev.category }}</span>
+              </div>
+              <div class="event-card-title">{{ ev.title }}</div>
+            </div>
+            <div class="event-card-body">
+              <div class="event-meta">
+                <div class="event-meta-row">
+                  <span class="icon">📅</span>
+                  <span class="mono">{{ ev.event_date }} &nbsp;·&nbsp; {{ ev.event_time }}</span>
+                </div>
+                <div class="event-meta-row">
+                  <span class="icon">📍</span>
+                  <span>{{ ev.venue }}</span>
+                </div>
+              </div>
+              <p style="font-size:0.86rem;color:var(--text-body);margin-top:6px;line-height:1.5;">
+                {{ ev.description[:110] }}{% if ev.description|length > 110 %}…{% endif %}
+              </p>
+            </div>
+            <div class="event-card-footer">
+              <span class="badge badge-upcoming">● OPEN</span>
+              <a href="{{ url_for('event_details', event_id=ev.id) }}" class="btn btn-primary btn-sm">
+                Details &rarr;
+              </a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="card" style="padding:60px 30px;text-align:center;">
+        <h3 style="margin-bottom:8px;">No scheduled events at this moment</h3>
+        <p style="color:var(--text-muted);font-size:0.9rem;">Check back shortly or visit the administration console to create upcoming events.</p>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- ── PROCESS FLOW (Inspired by Neutomni Discovery -> Launch Loop) ── -->
+<section class="process-section">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <div class="section-index">PIPELINE // VERIFICATION WORKFLOW</div>
+        <h2 class="section-title">The Clear Path to Participation</h2>
+        <p class="section-sub">We eliminate bottlenecks from discovery to registration tracking.</p>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:0.8rem;color:var(--red-accent);">A &rarr; B ARCHITECTURE</div>
+    </div>
+
+    <div class="process-grid">
+      <div class="process-card observe-fade">
+        <div class="process-num">
+          <span>01</span>
+          <span class="process-arrow">&rarr;</span>
+        </div>
+        <div>
+          <h3 class="process-title">Discover & Filter</h3>
+          <p class="process-desc">Search through technical hackathons, symposiums, and cultural milestones with zero noise.</p>
+        </div>
+      </div>
+
+      <div class="process-card observe-fade">
+        <div class="process-num">
+          <span>02</span>
+          <span class="process-arrow">&rarr;</span>
+        </div>
+        <div>
+          <h3 class="process-title">Inspect Details</h3>
+          <p class="process-desc">View real-time participant seat telemetry, strict venue logistics, and faculty coordinators.</p>
+        </div>
+      </div>
+
+      <div class="process-card observe-fade">
+        <div class="process-num">
+          <span>03</span>
+          <span class="process-arrow">&rarr;</span>
+        </div>
+        <div>
+          <h3 class="process-title">Instant Register</h3>
+          <p class="process-desc">Fill your student roll number and credentials. Receive a persistent, cryptographic Registration ID.</p>
+        </div>
+      </div>
+
+      <div class="process-card observe-fade">
+        <div class="process-num">
+          <span>04</span>
+          <span class="process-arrow">&rarr;</span>
+        </div>
+        <div>
+          <h3 class="process-title">Live Tracking</h3>
+          <p class="process-desc">Validate admission credentials at the entrance gate in real time via our single-query tracker.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CATEGORY DIRECTORY ── -->
+<section class="section">
+  <div class="container">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+      <h3 style="font-size:1.4rem;">Browse by Faculty Domain</h3>
+      <span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);">8 SPECIALIZED TRACKS</span>
+    </div>
+    <div class="tag-list">
+      {% for cat in ['Technical Events','Workshops','Hackathons','Cultural Events','Sports Events','Seminars','Symposiums','Other'] %}
+        <a href="{{ url_for('events', category=cat) }}" class="tag">{{ cat }}</a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% endblock %}

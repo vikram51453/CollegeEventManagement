@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard – College Event Management System{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-label">Navigation</div>
+    <a href="{{ url_for('admin_dashboard') }}" class="active">
+      <span class="sidebar-icon">📊</span> Dashboard
+    </a>
+    <a href="{{ url_for('create_event') }}">
+      <span class="sidebar-icon">➕</span> Create Event
+    </a>
+    <a href="{{ url_for('admin_registrations') }}">
+      <span class="sidebar-icon">📋</span> Registrations
+    </a>
+    <div class="sidebar-label" style="margin-top:16px;">Student View</div>
+    <a href="{{ url_for('events') }}" target="_blank">
+      <span class="sidebar-icon">🎯</span> Events Page ↗
+    </a>
+    <div class="sidebar-label" style="margin-top:16px;">Account</div>
+    <a href="{{ url_for('admin_logout') }}">
+      <span class="sidebar-icon">🚪</span> Logout
+    </a>
+  </aside>
+
+  <!-- Main content -->
+  <main class="admin-main">
+    <div class="admin-page-title">📊 Admin Dashboard</div>
+    <div class="admin-page-sub">Overview of all events and registrations in the system.</div>
+
+    <!-- STAT CARDS -->
+    <div class="grid-4" style="margin-bottom:36px;">
+      <div class="stat-card purple">
+        <div class="stat-icon purple">🎯</div>
+        <div class="stat-num" data-count="{{ total_events }}">{{ total_events }}</div>
+        <div class="stat-lbl">Total Events</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon green">📅</div>
+        <div class="stat-num" data-count="{{ upcoming_events }}">{{ upcoming_events }}</div>
+        <div class="stat-lbl">Upcoming Events</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-icon blue">✅</div>
+        <div class="stat-num" data-count="{{ completed_events }}">{{ completed_events }}</div>
+        <div class="stat-lbl">Completed Events</div>
+      </div>
+      <div class="stat-card pink">
+        <div class="stat-icon pink">👥</div>
+        <div class="stat-num" data-count="{{ total_regs }}">{{ total_regs }}</div>
+        <div class="stat-lbl">Total Registrations</div>
+      </div>
+    </div>
+
+    <!-- EVENTS TABLE -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3>📋 Events Management</h3>
+      <a href="{{ url_for('create_event') }}" class="btn btn-primary btn-sm">➕ Create New Event</a>
+    </div>
+
+    {% if recent_events %}
+      <div class="table-wrapper" style="margin-bottom:36px;">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Title</th>
+              <th>Category</th>
+              <th>Date</th>
+              <th>Venue</th>
+              <th>Capacity</th>
+              <th>Registered</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ev in recent_events %}
+              <tr>
+                <td style="color:var(--text-muted);">EVT-{{ '%04d' % ev.id }}</td>
+                <td style="color:var(--text-primary);font-weight:500;">{{ ev.title }}</td>
+                <td>{{ ev.category }}</td>
+                <td>{{ ev.event_date }}</td>
+                <td>{{ ev.venue }}</td>
+                <td>{{ ev.max_participants }}</td>
+                <td>
+                  <span style="color:{% if ev.reg_count >= ev.max_participants %}#ef4444{% else %}var(--accent){% endif %};">
+                    {{ ev.reg_count }}
+                  </span>
+                </td>
+                <td><span class="badge badge-{{ ev.status | lower }}">{{ ev.status }}</span></td>
+                <td>
+                  <div class="btn-group" style="gap:6px;">
+                    <a href="{{ url_for('edit_event', event_id=ev.id) }}" class="btn btn-warning btn-sm">Edit</a>
+                    <a href="{{ url_for('admin_registrations', event_id=ev.id) }}" class="btn btn-secondary btn-sm">Regs</a>
+                    <!-- Quick status update form -->
+                    <form method="POST" action="{{ url_for('update_status') }}" style="display:inline;">
+                      <input type="hidden" name="event_id" value="{{ ev.id }}" />
+                      <select name="status" onchange="this.form.submit()" class="form-control"
+                              style="padding:6px 10px;font-size:.78rem;border-radius:8px;display:inline-block;width:auto;">
+                        {% for s in ['Upcoming','Ongoing','Completed','Cancelled'] %}
+                          <option value="{{ s }}" {% if s == ev.status %}selected{% endif %}>{{ s }}</option>
+                        {% endfor %}
+                      </select>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty-state" style="margin-bottom:36px;">
+        <div class="empty-state-icon">📋</div>
+        <h3>No events yet</h3>
+        <p>Create your first event to get started.</p>
+        <a href="{{ url_for('create_event') }}" class="btn btn-primary" style="margin-top:16px;">➕ Create Event</a>
+      </div>
+    {% endif %}
+
+    <!-- RECENT REGISTRATIONS -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3>👥 Recent Registrations</h3>
+      <a href="{{ url_for('admin_registrations') }}" class="btn btn-secondary btn-sm">View All →</a>
+    </div>
+
+    {% if recent_regs %}
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Reg ID</th>
+              <th>Student</th>
+              <th>Email</th>
+              <th>Department</th>
+              <th>Year</th>
+              <th>Event</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in recent_regs %}
+              <tr>
+                <td style="color:var(--primary-light);font-weight:600;">{{ 'REG%05d' % r.id }}</td>
+                <td style="color:var(--text-primary);">{{ r.student_name }}</td>
+                <td>{{ r.email }}</td>
+                <td>{{ r.department }}</td>
+                <td>{{ r.year }}</td>
+                <td>{{ r.event_title }}</td>
+                <td>{{ r.registered_at[:10] }}</td>
+                <td><span class="badge badge-{{ r.status | lower }}">{{ r.status }}</span></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon">👥</div>
+        <h3>No registrations yet</h3>
+        <p>Students will appear here once they register for events.</p>
+      </div>
+    {% endif %}
+  </main>
+</div>
+{% endblock %}

@@ -1,0 +1,73 @@
+---
+# =============================================================
+# Ansible Playbook: College Event Management System Deployment
+# File: event-deploy.yml
+#
+# Prerequisites (on the ansible-docker-lab container):
+#   pip install docker                 # Docker Python SDK
+#   ansible-galaxy collection install community.docker
+#
+# Usage:
+#   ansible-playbook -i /inventory.ini /event-deploy.yml
+# =============================================================
+
+- name: Deploy College Event Management System
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    image_name:     "college-event-ci"
+    container_name: "college-event-ansible"
+    host_port:      5002
+    container_port: 5000
+    volume_name:    "college_event_data"
+    data_path:      "/app/data"
+    admin_password: "{{ admin_password | default(lookup('env', 'ADMIN_PASSWORD') | default('admin123', true)) }}"
+    flask_secret:   "{{ flask_secret   | default(lookup('env', 'FLASK_SECRET_KEY') | default('change-me-production', true)) }}"
+
+  tasks:
+
+    # ── 1. Ensure the Docker volume exists ──────────────────
+    - name: Create persistent Docker volume for SQLite database
+      community.docker.docker_volume:
+        name: "{{ volume_name }}"
+        state: present
+
+    # ── 2. Deploy/update the application container ──────────
+    - name: Deploy College Event Management container
+      community.docker.docker_container:
+        name:            "{{ container_name }}"
+        image:           "{{ image_name }}"
+        state:           "{{ container_state | default('started') }}"
+        restart_policy:  unless-stopped
+        recreate:        true
+        ports:
+          - "{{ host_port }}:{{ container_port }}"
+        volumes:
+          - "{{ volume_name }}:{{ data_path }}"
+        env:
+          ADMIN_PASSWORD:   "{{ admin_password }}"
+          FLASK_SECRET_KEY: "{{ flask_secret }}"
+          DATABASE_PATH:    "{{ data_path }}/college_events.db"
+          FLASK_DEBUG:      "false"
+
+    # ── 3. Verify container is running ──────────────────────
+    - name: Wait for application to be ready
+      ansible.builtin.wait_for:
+        host: localhost
+        port: "{{ host_port }}"
+        delay: 3
+        timeout: 60
+        state: started
+
+    # ── 4. Display deployment summary ───────────────────────
+    - name: Deployment summary
+      ansible.builtin.debug:
+        msg:
+          - "✅ Deployment complete!"
+          - "Container : {{ container_name }}"
+          - "Image     : {{ image_name }}"
+          - "Port      : http://localhost:{{ host_port }}"
+          - "Volume    : {{ volume_name }} → {{ data_path }}"
+          - "Database  : {{ data_path }}/college_events.db (persistent)"

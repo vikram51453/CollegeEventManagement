@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}Track Registration – College Event Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="page-header">
+    <div class="breadcrumb">
+      <a href="{{ url_for('index') }}">Home</a>
+      <span class="breadcrumb-sep">/</span>
+      <span>Track Registration</span>
+    </div>
+    <h1>🔍 Track Your Registration</h1>
+    <p>Enter your Registration ID and email to view your registration status.</p>
+  </div>
+
+  <!-- Search Form -->
+  <div class="form-card" style="margin-bottom:36px;">
+    <form method="GET" action="{{ url_for('track') }}">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="reg_id">Registration ID</label>
+          <input type="text" id="reg_id" name="reg_id" class="form-control"
+                 placeholder="e.g. REG00001" value="{{ reg_id }}" required
+                 style="text-transform:uppercase;letter-spacing:.05em;" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="email">Registered Email</label>
+          <input type="email" id="email" name="email" class="form-control"
+                 placeholder="e.g. priya@college.edu" value="{{ email }}" required />
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:13px;">
+        🔍 Track Registration
+      </button>
+    </form>
+  </div>
+
+  <!-- Error -->
+  {% if error %}
+    <div class="alert alert-warning">
+      ⚠️ {{ error }}
+      <button class="alert-close">✕</button>
+    </div>
+  {% endif %}
+
+  <!-- Result -->
+  {% if result %}
+    {% set reg_id_str = 'REG%05d' % result.id %}
+    <div class="track-result">
+      <div style="text-align:center;margin-bottom:28px;">
+        <span class="badge badge-{{ result.status | lower }}" style="font-size:1rem;padding:8px 20px;">
+          {% if result.status == 'Confirmed' %}✅{% else %}❌{% endif %}
+          {{ result.status }}
+        </span>
+      </div>
+      <div class="track-reg-id" onclick="copyRegId('{{ reg_id_str }}')" style="cursor:pointer;" title="Click to copy">
+        🎟️ {{ reg_id_str }}
+        <span style="font-size:.7rem;color:var(--text-muted);margin-left:8px;">(click to copy)</span>
+      </div>
+
+      <div class="track-grid">
+        <div class="track-item">
+          <div class="track-item-label">Student Name</div>
+          <div class="track-item-value">{{ result.student_name }}</div>
+        </div>
+        <div class="track-item">
+          <div class="track-item-label">Email</div>
+          <div class="track-item-value" style="word-break:break-all;">{{ result.email }}</div>
+        </div>
+        <div class="track-item">
+          <div class="track-item-label">Department</div>
+          <div class="track-item-value">{{ result.department }}</div>
+        </div>
+        <div class="track-item">
+          <div class="track-item-label">Year of Study</div>
+          <div class="track-item-value">{{ result.year }}</div>
+        </div>
+      </div>
+
+      <div class="separator"></div>
+
+      <div class="track-grid">
+        <div class="track-item" style="grid-column:1/-1;">
+          <div class="track-item-label">Event Name</div>
+          <div class="track-item-value" style="font-size:1.1rem;">{{ result.event_title }}</div>
+        </div>
+        <div class="track-item">
+          <div class="track-item-label">Category</div>
+          <div class="track-item-value">{{ result.category }}</div>
+        </div>
+        <div class="track-item">
+          <div class="track-item-label">Event Date & Time</div>
+          <div class="track-item-value">{{ result.event_date }} · {{ result.event_time }}</div>
+        </div>
+        <div class="track-item">
+          <div class="track-item-label">Venue</div>
+          <div class="track-item-value">{{ result.venue }}</div>
+        </div>
+        <div class="track-item">
+          <div class="track-item-label">Event Status</div>
+          <div class="track-item-value">
+            <span class="badge badge-{{ result.event_status | lower }}">{{ result.event_status }}</span>
+          </div>
+        </div>
+        <div class="track-item">
+          <div class="track-item-label">Registration Date</div>
+          <div class="track-item-value">{{ result.registered_at[:10] }}</div>
+        </div>
+        <div class="track-item">
+          <div class="track-item-label">Registration Status</div>
+          <div class="track-item-value">
+            <span class="badge badge-{{ result.status | lower }}">{{ result.status }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:28px;text-align:center;">
+        <a href="{{ url_for('event_details', event_id=result.event_id) }}" class="btn btn-secondary">
+          View Event Details →
+        </a>
+        <a href="{{ url_for('events') }}" class="btn btn-primary" style="margin-left:12px;">
+          Browse More Events
+        </a>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

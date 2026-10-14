@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Registrations – Admin{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+  <aside class="sidebar">
+    <div class="sidebar-label">Navigation</div>
+    <a href="{{ url_for('admin_dashboard') }}"><span class="sidebar-icon">📊</span> Dashboard</a>
+    <a href="{{ url_for('create_event') }}"><span class="sidebar-icon">➕</span> Create Event</a>
+    <a href="{{ url_for('admin_registrations') }}" class="active"><span class="sidebar-icon">📋</span> Registrations</a>
+    <div class="sidebar-label" style="margin-top:16px;">Student View</div>
+    <a href="{{ url_for('events') }}" target="_blank"><span class="sidebar-icon">🎯</span> Events Page ↗</a>
+    <div class="sidebar-label" style="margin-top:16px;">Account</div>
+    <a href="{{ url_for('admin_logout') }}"><span class="sidebar-icon">🚪</span> Logout</a>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-page-title">📋 Student Registrations</div>
+    <div class="admin-page-sub">View and manage all student event registrations.</div>
+
+    <!-- Filter -->
+    <form method="GET" action="{{ url_for('admin_registrations') }}" class="filter-bar" style="margin-bottom:28px;">
+      <div class="form-group" style="margin-bottom:0;flex:1;">
+        <label class="form-label">Filter by Event</label>
+        <select name="event_id" class="form-control" onchange="this.form.submit()">
+          <option value="">All Events</option>
+          {% for ev in events_list %}
+            <option value="{{ ev.id }}" {% if ev.id | string == selected_event %}selected{% endif %}>{{ ev.title }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div style="align-self:flex-end;">
+        <button type="submit" class="btn btn-primary">Filter</button>
+        {% if selected_event %}
+          <a href="{{ url_for('admin_registrations') }}" class="btn btn-secondary" style="margin-left:8px;">Clear</a>
+        {% endif %}
+      </div>
+    </form>
+
+    {% if registrations %}
+      <p style="color:var(--text-muted);font-size:.85rem;margin-bottom:16px;">
+        Showing <strong style="color:var(--text-primary);">{{ registrations | length }}</strong> registration{{ 's' if registrations | length != 1 else '' }}
+      </p>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Reg ID</th>
+              <th>Student Name</th>
+              <th>Email</th>
+              <th>Department</th>
+              <th>Year</th>
+              <th>Event</th>
+              <th>Registered On</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in registrations %}
+              <tr>
+                <td style="color:var(--primary-light);font-weight:700;">{{ 'REG%05d' % r.id }}</td>
+                <td style="color:var(--text-primary);font-weight:500;">{{ r.student_name }}</td>
+                <td style="font-size:.83rem;">{{ r.email }}</td>
+                <td style="font-size:.83rem;">{{ r.department }}</td>
+                <td>{{ r.year }}</td>
+                <td style="color:var(--text-primary);">{{ r.event_title }}</td>
+                <td style="color:var(--text-muted);font-size:.82rem;">{{ r.registered_at[:10] }}</td>
+                <td><span class="badge badge-{{ r.status | lower }}">{{ r.status }}</span></td>
+                <td>
+                  {% if r.status == 'Confirmed' %}
+                    <form method="POST" action="{{ url_for('cancel_registration') }}" style="display:inline;">
+                      <input type="hidden" name="reg_id" value="{{ r.id }}" />
+                      <button type="submit" class="btn btn-danger btn-sm"
+                              data-confirm="Cancel registration {{ 'REG%05d' % r.id }}? This cannot be undone.">
+                        Cancel
+                      </button>
+                    </form>
+                  {% else %}
+                    <span style="color:var(--text-muted);font-size:.8rem;">—</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon">📋</div>
+        <h3>No registrations found</h3>
+        <p>{% if selected_event %}No registrations for this event yet.{% else %}No student registrations in the system.{% endif %}</p>
+      </div>
+    {% endif %}
+  </main>
+</div>
+{% endblock %}
