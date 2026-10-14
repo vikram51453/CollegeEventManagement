@@ -36,3 +36,6 @@ Thumbs.db
 
 # ─── Keep the data directory structure in git ────────────────
 !data/.gitkeep
+
+# Ignore nested backup folder
+devops/
